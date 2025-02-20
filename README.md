@@ -1,3 +1,7 @@
+ Supports multiple conversations to keep (Just add more IDs to EXCLUDED_CHANNEL_IDS)
+ Automatically skips those conversations while deleting everything else
+
+
 🔹 How to Use It
 
     Find All the DM/Channel IDs You Want to Keep
