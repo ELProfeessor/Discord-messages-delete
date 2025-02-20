@@ -1,0 +1,80 @@
+(async () => {
+    // 🔹 List of Channel IDs (DMs/Servers) that you want to KEEP (Messages won't be deleted)
+    const EXCLUDED_CHANNEL_IDS = [
+        "702725566667571540", // Example Friend DM
+        "123456789012345678", // Another DM/Server you want to keep
+        "987654321098765432"  // Add more as needed
+    ];
+
+    // Function to get messages from a channel
+    async function getMessages(channelId, before = null) {
+        if (EXCLUDED_CHANNEL_IDS.includes(channelId)) {
+            console.log(`Skipping messages in channel ${channelId} (Excluded)`);
+            return []; // Skip fetching messages from this channel
+        }
+
+        const url = `https://discord.com/api/v9/channels/${channelId}/messages?limit=50${before ? `&before=${before}` : ''}`;
+        const response = await fetch(url, {
+            headers: {
+                "Authorization": "YOUR_DISCORD_TOKEN",
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!response.ok) {
+            console.error(`Failed to fetch messages for channel ${channelId}`);
+            return [];
+        }
+
+        return await response.json();
+    }
+
+    // Function to delete messages
+    async function deleteMessage(channelId, messageId) {
+        if (EXCLUDED_CHANNEL_IDS.includes(channelId)) {
+            console.log(`Skipping message deletion in channel ${channelId} (Excluded)`);
+            return;
+        }
+
+        const url = `https://discord.com/api/v9/channels/${channelId}/messages/${messageId}`;
+        const response = await fetch(url, {
+            method: "DELETE",
+            headers: {
+                "Authorization": "YOUR_DISCORD_TOKEN",
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (response.ok) {
+            console.log(`Deleted message ${messageId} in channel ${channelId}`);
+        } else {
+            console.error(`Failed to delete message ${messageId}`);
+        }
+    }
+
+    // Function to delete all messages in a channel (except excluded ones)
+    async function deleteAllMessages(channelId) {
+        let messages;
+        do {
+            messages = await getMessages(channelId);
+            for (const msg of messages) {
+                await deleteMessage(channelId, msg.id);
+                await new Promise(r => setTimeout(r, 1000)); // Avoid rate limits
+            }
+        } while (messages.length > 0);
+    }
+
+    // 🔹 List of all channels where messages should be deleted (Replace with actual channel IDs)
+    const channelsToDelete = [
+        "1987286453532527054", // Example DM with your Friend
+        "CHANNEL_ID_2",        // Add more channels here
+        "CHANNEL_ID_3"
+    ];
+
+    // Loop through channels and delete messages (excluding the ones in EXCLUDED_CHANNEL_IDS)
+    for (const channelId of channelsToDelete) {
+        await deleteAllMessages(channelId);
+    }
+
+    console.log("Finished deleting messages (excluding selected conversations).");
+})();
