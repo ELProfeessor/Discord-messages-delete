@@ -1,3 +1,5 @@
+ This Script will skip deleting your messages in channels or DMs you pick
+ 
  Supports multiple conversations to keep (Just add more IDs to EXCLUDED_CHANNEL_IDS)
  Automatically skips those conversations while deleting everything else
 
